@@ -15,6 +15,7 @@ export function searchCatalog(items, filters = {}) {
   const result = [];
   for (const item of items) {
     if (filters.subject && item.subject !== filters.subject) continue;
+    if (filters.discipline && item.discipline !== filters.discipline) continue;
     if (filters.format && item.format !== filters.format) continue;
     if (filters.level && item.level !== filters.level) continue;
     if (filters.access && item.access !== filters.access) continue;
@@ -24,7 +25,7 @@ export function searchCatalog(items, filters = {}) {
     if (filters.captions && !item.captions) continue;
     if (filters.practice && !item.lessons?.some(lesson => lesson.practice)) continue;
     const title = normalize(item.title);
-    const text = normalize([item.title, item.summary, item.provider, item.subject, item.discipline, item.targetLanguage, item.language].filter(Boolean).join(' '));
+    const text = normalize([item.title, item.searchAlias, item.summary, item.provider, item.subject, item.discipline, item.targetLanguage, item.language].filter(Boolean).join(' '));
     if (!words.every(word => text.includes(word))) continue;
     const score = words.reduce((sum, word) => sum + (title.includes(word) ? 3 : 1), 0);
     result.push({ item, score });
@@ -36,10 +37,10 @@ function normalize(value = '') {
   return value.toLowerCase().normalize('NFKD').replace(/\p{M}/gu, '');
 }
 
-export function nextLesson(item, activity) {
+export function nextLesson(item, activity, key = (_, index) => index) {
   if (!item.lessons?.length) return 0;
   const done = new Set(activity?.done || []);
-  const next = item.lessons.findIndex((_, index) => !done.has(index));
+  const next = item.lessons.findIndex((_, index) => !done.has(key(item, index)));
   return next < 0 ? 0 : next;
 }
 

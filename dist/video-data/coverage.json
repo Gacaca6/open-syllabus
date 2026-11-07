@@ -1,0 +1,223 @@
+{
+  "matched": 2830,
+  "partial": 33,
+  "missing": 13,
+  "courseOutlines": 2826,
+  "lessons": 136195,
+  "unresolved": {
+    "delft-urban": {
+      "state": "untraced"
+    },
+    "delft-water": {
+      "state": "untraced"
+    },
+    "fao-soils": {
+      "state": "untraced"
+    },
+    "harvard-python": {
+      "state": "partial",
+      "reason": "Supplementary video not found at https://cs50.harvard.edu/python/shorts/functions/"
+    },
+    "language-spanish": {
+      "state": "untraced"
+    },
+    "language-swahili": {
+      "state": "untraced"
+    },
+    "mit-circuits": {
+      "state": "untraced"
+    },
+    "mit-classical-mechanics": {
+      "state": "untraced"
+    },
+    "nptel-101105333": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-102101068": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-102103092": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-102106553": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-102106652": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-103101354": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-103105122": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-103106655": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-104105087": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-104106132": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-105104148": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-105104162": {
+      "state": "partial",
+      "reason": "At least one official lesson has no usable YouTube reference"
+    },
+    "nptel-105105566": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-105106653": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-106102220": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-106104844": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-106106137": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-106108229": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-107106654": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-108103108": {
+      "state": "partial",
+      "reason": "At least one official lesson has no usable YouTube reference"
+    },
+    "nptel-108103174": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-108108110": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-108108168": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-108108174": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-109102156": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-109103183": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-109105193": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-109106084": {
+      "state": "partial",
+      "reason": "At least one official lesson has no usable YouTube reference"
+    },
+    "nptel-111102096": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-111104138": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-111105166": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-112104197": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-112104313": {
+      "state": "partial",
+      "reason": "At least one official lesson has no usable YouTube reference"
+    },
+    "nptel-112106300": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-112106322": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-113101099": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-113105099": {
+      "state": "partial",
+      "reason": "At least one official lesson has no usable YouTube reference"
+    },
+    "nptel-113105633": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-113106099": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-115104134": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-127101010": {
+      "state": "partial",
+      "reason": "Outline needs review for single or repeated video references"
+    },
+    "nptel-128106032": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-128108023": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "nptel-128108024": {
+      "state": "missing",
+      "reason": "No official lesson outline"
+    },
+    "openlearn-ecosystems": {
+      "state": "untraced"
+    },
+    "openlearn-french": {
+      "state": "untraced"
+    },
+    "openlearn-learning": {
+      "state": "untraced"
+    },
+    "yale-music": {
+      "state": "partial",
+      "reason": "Official sessions list missing"
+    }
+  }
+}
