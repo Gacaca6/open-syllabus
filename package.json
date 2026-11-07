@@ -1,0 +1,1 @@
+{"name":"open-syllabus","private":true,"version":"0.1.0","type":"module","engines":{"node":">=22"},"scripts":{"dev":"node scripts/serve.mjs","test":"node --test","catalog:import":"node scripts/import-nptel.mjs","catalog:review":"node scripts/review-catalog.mjs"}}
