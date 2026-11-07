@@ -35,19 +35,18 @@ export function heroArt() {
   return '<svg class="hero-art" aria-hidden="true" viewBox="0 0 620 304" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#d7d7d2" stroke-width=".65">' + curves + '<path d="M155 153h420M365 14v278" stroke-dasharray="3 6" opacity=".4"/><circle cx="494" cy="76" r="2" fill="#eee"/><circle cx="251" cy="239" r="2" fill="#eee"/></g><text x="509" y="78" fill="#aaa" font-size="8" font-family="monospace">FIG. 01</text></svg>';
 }
 
-export function art(kind) {
-  let lines = '';
-  if (kind === 'mind') {
-    for (let i = 0; i < 17; i++) lines += '<ellipse cx="181" cy="85" rx="' + (18+i*4) + '" ry="63" transform="rotate(' + (i*10-25) + ' 181 85)" opacity=".45"/>';
-  } else if (kind === 'land') {
-    for (let i = 0; i < 15; i++) lines += '<path d="M-20 ' + (75+i*8) + 'Q83 ' + (2+i*7) + ' 165 ' + (74+i*4) + 'T350 ' + (61+i*8) + '" opacity=".66"/>';
-    lines += '<circle cx="235" cy="54" r="24" fill="#deded9"/><path d="M235 24v60M205 54h60" opacity=".5"/>';
-  } else if (kind === 'language') {
-    lines = '<path d="M78 41h139v68H135l-35 24v-24H78z" fill="#e4e4df"/><path d="M166 76h93v53h-17v19l-31-19h-45z" fill="#d1d1cb"/><path d="M101 66h87m-87 12h54m36 21h51m-51 9h34" stroke-width="2"/>';
-  } else if (kind === 'code') {
-    lines = '<path d="M72 37h185v102H72z" fill="#e1e1dd"/><path d="M72 57h185m-157 25-13 11 13 11m38-22 13 11-13 11m-10-26-12 32m62-21h59m-59 13h39"/><circle cx="85" cy="47" r="2"/><circle cx="94" cy="47" r="2"/><circle cx="103" cy="47" r="2"/>';
-  } else {
-    for (let i = 0; i < 12; i++) lines += '<rect x="' + (112+i*4) + '" y="' + (29+i*4) + '" width="108" height="108" transform="rotate(' + (i*6) + ' 165 84)" opacity=".43"/>';
-  }
-  return '<svg aria-hidden="true" viewBox="0 0 330 180" preserveAspectRatio="xMidYMid slice"><rect width="330" height="180" fill="#eaeae6"/><path d="M0 90h330M165 0v180" stroke="#d5d5d0" stroke-dasharray="2 5"/><g fill="none" stroke="#424241" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">' + lines + '</g><path d="M307 158v9m-5-4.5h10" stroke="#787873"/></svg>';
+// Reading order of the four-by-four subject cover sheet.
+export const illustratedSubjects = [
+  'Agriculture', 'Business', 'Computing', 'Design & arts',
+  'Engineering', 'Environment', 'Health', 'History',
+  'Humanities', 'Interdisciplinary', 'Languages', 'Mathematics',
+  'Psychology', 'Science', 'Society & law', 'Study skills'
+];
+
+export function subjectCover(subject) {
+  const match = illustratedSubjects.indexOf(subject);
+  const index = match < 0 ? illustratedSubjects.indexOf('Study skills') : match;
+  const x = -(index % 4) * 100;
+  const y = -Math.floor(index / 4) * 100;
+  return '<span class="subject-cover" aria-hidden="true"><img src="./images/subject-covers.webp" alt="" width="1672" height="941" decoding="async" style="left:' + x + '%;top:' + y + '%"></span>';
 }

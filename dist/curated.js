@@ -9,7 +9,7 @@ const course = (id, title, provider, subject, format, source, summary, extras = 
 
 export const curated = [
   course('yale-psychology', 'Introduction to Psychology', 'Yale University', 'Psychology', 'Video', yale + '/introduction-psychology/psyc-110', 'Explore how psychologists study the mind, the brain, and human behavior.', {
-    level: 'Beginner', language: 'English', art: 'mind', captions: true, access: 'guided', prerequisites: 'No formal psychology background is needed for this guide.',
+    level: 'Beginner', language: 'English', captions: true, access: 'guided', prerequisites: 'No formal psychology background is needed for this guide.',
     outcome: 'Describe different approaches to studying behavior and explain how a scientific theory can be evaluated.',
     lessons: [
       lesson('A map of the mind', yale + '/psychology/psyc-110/lecture-1', 'Pick a behavior you observed today. Write one question about it that a developmental psychologist could investigate and one that a social psychologist might ask.', 'P3FKHH2RzjI', 'Different branches of psychology ask different questions about the same behavior. Try to identify a concrete observation behind each question.'),
@@ -18,7 +18,7 @@ export const curated = [
     ]
   }),
   course('soil-and-crops', 'Organic Farming for Sustainable Agricultural Production', 'IIT Kharagpur · NPTEL', 'Agriculture', 'Video', 'https://onlinecourses.nptel.ac.in/noc20_ag05/preview', 'Learn the principles behind organic production and use guided field observations to connect them to your own soil and crops.', {
-    level: 'Beginner', art: 'land', access: 'guided', outcome: 'Make a simple observation plan for soil and connect it to organic production practices.',
+    level: 'Beginner', access: 'guided', outcome: 'Make a simple observation plan for soil and connect it to organic production practices.',
     prerequisites: 'Bring a notebook. Access to two patches of soil helps with the field activity.',
     lessons: [
       lesson('Start with the principles', 'https://onlinecourses.nptel.ac.in/noc20_ag05/preview', 'List three ways a farming practice might improve one outcome while making another harder to achieve. Think about labor, soil health, cost, or crop yield.', null, 'Begin with the official course outline. For each practice, ask what problem it addresses and in what conditions it might work.'),
@@ -27,7 +27,7 @@ export const curated = [
     ]
   }),
   course('language-spanish', 'Complete Spanish', 'Language Transfer', 'Languages', 'Audio', lt + '/courses', 'Work through spoken examples and practice building phrases aloud, with time to think before hearing the response.', {
-    level: 'Beginner', language: 'English', targetLanguage: 'Spanish', art: 'language', access: 'guided',
+    level: 'Beginner', language: 'English', targetLanguage: 'Spanish', access: 'guided',
     outcome: 'Build and say simple Spanish phrases from patterns you can explain.',
     prerequisites: 'Find a quiet place where you can answer out loud.',
     lessons: [
@@ -37,7 +37,7 @@ export const curated = [
     ]
   }),
   course('harvard-python', 'CS50’s Introduction to Programming with Python', 'Harvard University', 'Computing', 'Video', cs + '/', 'Learn to write, test, and debug Python through lectures and practical problem sets.', {
-    level: 'Beginner', language: 'English', art: 'code', access: 'guided',
+    level: 'Beginner', language: 'English', access: 'guided',
     outcome: 'Write a small program that takes input, makes a decision, and repeats work.',
     prerequisites: 'No prior programming experience is required. Use the course’s setup instructions for the exercises.',
     lessons: [
@@ -46,9 +46,9 @@ export const curated = [
       lesson('Loops', cs + '/weeks/2/', 'Ask for three names in a loop. Test your program with normal input and at least one blank entry.', '-7xg8pGcP6w')
     ]
   }),
-  course('language-swahili', 'Introduction to Swahili', 'Language Transfer', 'Languages', 'Audio', lt + '/courses#swahili', 'Try the provider’s introductory audio sequence. Pause, think, and say each response out loud.', { level: 'Beginner', language: 'English', targetLanguage: 'Swahili', art: 'language' }),
-  course('openlearn-french', 'Getting started with French 1', 'OpenLearn · The Open University', 'Languages', 'Mixed', ou + '/languages/getting-started-french-1/content-section-overview', 'Practice greetings, introductions, and basic French pronunciation.', { level: 'Beginner', language: 'English', targetLanguage: 'French', duration: 6, art: 'language' }),
-  course('yale-philosophy', 'Death', 'Yale University', 'Humanities', 'Video', yale + '/death/phil-176', 'Examine philosophical arguments about identity, mortality, and how we should live.', { art: 'mind', language: 'English', captions: true }),
+  course('language-swahili', 'Introduction to Swahili', 'Language Transfer', 'Languages', 'Audio', lt + '/courses#swahili', 'Try the provider’s introductory audio sequence. Pause, think, and say each response out loud.', { level: 'Beginner', language: 'English', targetLanguage: 'Swahili' }),
+  course('openlearn-french', 'Getting started with French 1', 'OpenLearn · The Open University', 'Languages', 'Mixed', ou + '/languages/getting-started-french-1/content-section-overview', 'Practice greetings, introductions, and basic French pronunciation.', { level: 'Beginner', language: 'English', targetLanguage: 'French', duration: 6 }),
+  course('yale-philosophy', 'Death', 'Yale University', 'Humanities', 'Video', yale + '/death/phil-176', 'Examine philosophical arguments about identity, mortality, and how we should live.', { language: 'English', captions: true }),
   course('yale-music', 'Listening to Music', 'Yale University', 'Design & arts', 'Video', yale + '/music/musi-112/lecture-1', 'Build a vocabulary for listening closely to musical structure, rhythm, and melody.', { level: 'Beginner', language: 'English' }),
   course('yale-economics', 'Financial Markets', 'Yale University', 'Business', 'Video', yale + '/economics/econ-252', 'Explore how financial institutions work and how they respond to risk.', { language: 'English' }),
   course('yale-politics', 'Introduction to Political Philosophy', 'Yale University', 'Society & law', 'Video', yale + '/political-science/plsc-114', 'Compare influential ideas about justice, citizenship, and political authority.', { level: 'Beginner', language: 'English' }),
@@ -60,7 +60,7 @@ export const curated = [
   course('openlearn-ecosystems', 'Introduction to Ecosystems', 'OpenLearn · The Open University', 'Environment', 'Mixed', ou + '/science-maths-technology/introduction-ecosystems', 'Explore relationships among organisms and their environments.', { level: 'Beginner', language: 'English' }),
   course('delft-water', 'Integrated Water Management', 'TU Delft OpenCourseWare', 'Environment', 'Mixed', 'https://ocw.tudelft.nl/courses/integrated-water-management/', 'Study water resources and compare management choices across case studies.', { level: 'Advanced', language: 'English' }),
   course('delft-urban', 'Urban Drainage and Watermanagement', 'TU Delft OpenCourseWare', 'Design & arts', 'Mixed', 'https://ocw.tudelft.nl/courses/urban-drainage-and-watermanagement/', 'Connect urban planning decisions with water infrastructure and sustainable design.', { level: 'Advanced', language: 'English', duration: 112 }),
-  course('fao-soils', 'Climate-smart soil and land management', 'FAO elearning Academy', 'Agriculture', 'Mixed', 'https://elearning.fao.org/course/view.php?id=435', 'Explore how soil and land management can support agriculture under changing climate conditions.', { art:'land', language:'English' }),
+  course('fao-soils', 'Climate-smart soil and land management', 'FAO elearning Academy', 'Agriculture', 'Mixed', 'https://elearning.fao.org/course/view.php?id=435', 'Explore how soil and land management can support agriculture under changing climate conditions.', { language:'English' }),
   course('openlearn-learning', 'Succeed with learning', 'OpenLearn · The Open University', 'Study skills', 'Mixed', ou + '/education-development/succeed-learning/', 'Reflect on what helps you learn and build a practical approach to independent study.', { level:'Beginner', language:'English' })
 ];
 
@@ -75,7 +75,7 @@ export const paths = [
 
 export const lectures = [{
   id:'time-and-mortality', title:'How should we live knowing life ends?', provider:'Yale University · Shelly Kagan',
-  subject:'Humanities', art:'mind', format:'Video', access:'guided', review:'curated', lecture:true,
+  subject:'Humanities', format:'Video', access:'guided', review:'curated', lecture:true,
   summary:'Consider whether knowing our time is limited changes what deserves our attention.',
   source:yale + '/philosophy/phil-176/lecture-23', parent:'yale-philosophy',
   lessons:[lesson('How to live given the certainty of death', yale + '/philosophy/phil-176/lecture-23', 'Write down one priority you would keep and one you would reconsider if you took the argument seriously. Which premise matters most to your answer?', 'O8Hu465KL1w')]

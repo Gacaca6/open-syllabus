@@ -8,3 +8,15 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 .player{min-height:200px}.note-preview{line-height:1.55}.study-tool-panel{scroll-margin-top:calc(var(--header) + 12px)}
 .topbar .menu{display:none}.content:focus{outline:none}.filter-field{display:grid;gap:5px;min-width:112px}.filter-field label{display:block;min-width:0}@media(max-width:700px){.topbar .menu{display:inline-grid}}
+.subject-cover{position:relative;display:block;overflow:hidden;aspect-ratio:16/9;background:#dededb}
+.subject-cover img{position:absolute;width:400%;height:400%;max-width:none}
+.card-visual .subject-cover{height:100%;aspect-ratio:auto}
+.subject-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.subject-tile{overflow:hidden;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.subject-tile:hover{border-color:#777}
+.subject-name{display:block;padding:7px 9px;font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.player{position:relative;isolation:isolate}
+.player .subject-cover{position:absolute;inset:0;z-index:-2;aspect-ratio:auto}
+.player:has(.subject-cover)::after{content:"";position:absolute;inset:0;z-index:-1;background:#0009}
+@media(max-width:1050px){.subject-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:430px){.subject-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.subject-name{padding:6px 7px}}

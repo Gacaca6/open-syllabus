@@ -1,6 +1,6 @@
 
 import { curated, paths, lectures } from './curated.js';
-import { art, heroArt, icon, subjectIcon } from './art.js';
+import { heroArt, icon, subjectCover, subjectIcon } from './art.js';
 import { mergeCatalog, nextLesson, pageSize, readStudy, searchCatalog, writeStudy } from './model.js';
 
 const $ = (selector) => document.querySelector(selector);
@@ -52,7 +52,7 @@ const heading = (kicker, title, description = '') => `<header class="page-head">
 function renderCard(item) {
   const href = courseLink(item);
   const saveLabel = isSaved(item) ? 'Remove saved course' : 'Save course';
-  return `<article class="card"><a class="card-visual" href="${href}" tabindex="-1" aria-hidden="true">${art(item.art)}<span class="card-code">${safe(item.subject)}</span></a>
+  return `<article class="card"><a class="card-visual" href="${href}" tabindex="-1" aria-hidden="true">${subjectCover(item.subject)}<span class="card-code">${safe(item.subject)}</span></a>
     ${action('save', '', 'save', item.id, 'icon-btn save-card', 'aria-pressed="' + isSaved(item) + '" aria-label="' + saveLabel + '" title="' + saveLabel + '"')}
     <div class="card-body"><h3><a href="${href}">${safe(item.title)}</a></h3><div class="provider">${safe(item.provider)}</div>
     ${progress(item) ? progressBar(progress(item)) : ''}
@@ -69,7 +69,7 @@ function discover() {
     <p>University courses, practical skills, and ideas worth sitting with. Find your starting point and study at your own pace.</p>
     ${link('#catalog', 'Explore the library', 'arrow', 'button light')}</div><div class="folio">OPEN SYLLABUS / VOL. 01</div></section>
     ${recent.length ? section('Continue studying', 'Pick up where you left off.', cards(recent), link('#study-space', 'My study')) : ''}
-    ${section('Browse by subject', '', '<div class="chips">' + favorites.map(subject => `<a class="chip" href="${browseLink({subject})}">${icon(subjectIcon[subject])}${safe(subject)}</a>`).join('') + '<a class="chip" href="#catalog">All subjects</a></div>')}
+    ${section('Browse by subject', '', '<div class="subject-grid">' + favorites.map(subject => `<a class="subject-tile" href="${browseLink({subject})}">${subjectCover(subject)}<span class="subject-name">${safe(subject)}</span></a>`).join('') + '</div>', link('#catalog', 'All subjects'))}
     ${section('Start with a course', 'Guided starting points from trusted educators.', cards(featured, 'featured'), link('#catalog', 'View catalog'))}
     ${section('Learning paths', 'Build toward a goal with a sequence you can follow.', '<div class="paths">' + paths.slice(0, 3).map(pathTile).join('') + '</div>', link('#paths', 'All paths'))}
     ${section('Explore an idea', 'A question worth making time for.', cards(lectures), link(browseLink({ type:'lectures' }), 'All lectures'))}`;
@@ -149,7 +149,7 @@ function renderCourse(item) {
       </div></section>
       ${item.lessons ? `<section class="panel"><h2>${item.lecture ? 'Lecture' : 'Guide outline'}</h2><p class="small muted">The guide covers the material listed below. The full course is available from the provider.</p>${outline(item)}</section>`
       : `<section class="panel"><h2>Study notebook</h2>${noteForm(item, 'course', 'Write a course note')}<div class="study-actions">${action('complete-source', entry.complete ? 'Undo completion' : 'Mark course complete', 'check', item.id)}</div></section>`}
-    </div><aside class="panel"><div class="details-art">${art(item.art)}</div><h3>Original source</h3><p class="muted small">${safe(item.provider)}</p>${external(item.source, 'Visit source')}
+    </div><aside class="panel"><div class="details-art">${subjectCover(item.subject)}</div><h3>Original source</h3><p class="muted small">${safe(item.provider)}</p>${external(item.source, 'Visit source')}
       <p class="muted small">${item.review === 'indexed' ? 'Provider-listed course' : item.review === 'approved' ? 'Reviewed source listing' : 'Curated starting point'}</p>
       ${item.parent && byId.has(item.parent) ? link(courseLink(byId.get(item.parent)), 'View full course') : ''}
     </aside></div>`;
@@ -176,7 +176,7 @@ function renderLesson(item, index, params) {
   return `<nav class="breadcrumb"><a href="#catalog">Library</a> / <a href="${courseLink(item)}">${safe(item.title)}</a></nav>
     ${heading('Study · Lesson ' + (index + 1) + ' of ' + item.lessons.length, lesson.title, item.provider)}
     <div class="detail"><div>
-      ${lesson.video ? `<div class="player" id="player"><div class="play-prompt">
+      ${lesson.video ? `<div class="player" id="player">${subjectCover(item.subject)}<div class="play-prompt">
         ${action('play', 'Load YouTube video', 'play', item.id, 'button light', 'data-index="' + index + '"')}<p>Playback uses the official YouTube player.</p></div></div>`
         : `<section class="panel"><h2>${item.format === 'Audio' ? 'Listen at the source' : 'Study at the source'}</h2><p class="lead">Open the provider’s material, then return here for practice, notes, and progress.</p><p>${external(lesson.source, 'Open lesson source', 'button')}</p></section>`}
       <div class="study-actions"><div class="button-row">

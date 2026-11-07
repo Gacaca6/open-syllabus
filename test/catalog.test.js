@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { curated, lectures, paths } from '../dist/curated.js';
+import { illustratedSubjects } from '../dist/art.js';
 import { mergeCatalog, nextLesson, readStudy, searchCatalog, writeStudy } from '../dist/model.js';
 
 const source = JSON.parse(await readFile(new URL('../dist/nptel.json', import.meta.url), 'utf8'));
@@ -19,6 +20,12 @@ test('snapshot contains at least 2,000 unique course listings with HTTPS sources
     }
   }
   for (const path of paths) assert.ok(path.items.every(id => curated.some(item => item.id === id)));
+});
+
+test('each catalog subject has its own cover cell', () => {
+  assert.equal(illustratedSubjects.length, 16);
+  assert.equal(new Set(illustratedSubjects).size, 16);
+  for (const item of [...catalog, ...lectures]) assert.ok(illustratedSubjects.includes(item.subject), item.subject);
 });
 
 test('catalog supports intersecting subject, target language, format, and practice filters', () => {
