@@ -4,6 +4,7 @@ import { heroArt, icon, subjectCover, subjectIcon } from './art.js';
 import { mergeCatalog, nextLesson, pageSize, readStudy, searchCatalog, writeStudy } from './model.js';
 import { chapterRuns, createVideoLibrary, lessonKey, linkVideoCatalog, studyKey, videoLesson } from './video-library.js';
 import { careers, careerById, careerCourseCount, careerStepCount, stepKey } from './careers.js';
+import { skillVideos, skillTopics } from './skill-videos.js';
 
 const $ = (selector) => document.querySelector(selector);
 const shell = $('#shell');
@@ -82,6 +83,28 @@ function careerProgress(career) {
   return total ? Math.round(done / total * 100) : 0;
 }
 
+const skillMap = new Map(skillVideos.map(video => [video.id, video]));
+const shuffled = ids => {
+  const order = [...ids];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+};
+let feedOrder = shuffled(skillVideos.map(video => video.id));
+let feedLimit = 24;
+const isWatched = id => Boolean(study.items['skill:' + id]?.watched);
+function recordSkill(id, modify) {
+  const key = 'skill:' + id;
+  const entry = { ...study.items[key] };
+  modify(entry);
+  entry.updated = Date.now();
+  study = { items:{ ...study.items, [key]:entry } };
+  return writeStudy(browserStorage, study);
+}
+const skillThumb = id => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+
 function renderCard(item) {
   const href = courseLink(item);
   const saveLabel = isSaved(item) ? 'Remove saved course' : 'Save course';
@@ -108,7 +131,8 @@ function discover() {
     ${section('Browse by subject', '', '<div class="subject-grid">' + favorites.map(subject => `<a class="subject-tile" href="${browseLink({subject})}">${subjectCover(subject)}<span class="subject-name">${safe(subject)}</span></a>`).join('') + '</div><div class="chips topic-shortcuts"><a class="chip" href="' + browseLink({discipline:'Textile Engineering'}) + '">Textiles &amp; apparel</a><a class="chip" href="' + browseLink({discipline:'Engineering Design'}) + '">Engineering design</a></div>', link('#catalog', 'All subjects'))}
     ${featured.length ? section('Start a full course', 'Official YouTube lessons in the order their educators list them.', cards(featured, 'featured'), link('#catalog', 'View catalog')) : ''}
     ${section('Learning paths', 'Build toward a goal with a sequence you can follow.', '<div class="paths">' + paths.slice(0, 3).map(pathTile).join('') + '</div>', link('#paths', 'All paths'))}
-    ${section('Explore an idea', 'A question worth making time for.', cards(lectures), link(browseLink({ type:'lectures' }), 'All lectures'))}`;
+    ${section('Explore an idea', 'A question worth making time for.', cards(lectures), link(browseLink({ type:'lectures' }), 'All lectures'))}
+    ${section('The skill feed', 'Press play on something new. Hand-picked videos that teach a real skill — shuffled every visit.', skillGrid(feedOrder.slice(0, 8).map(id => skillMap.get(id))), `<div class="button-row">${action('shuffle', '', 'spark', '', 'icon-btn', 'aria-label="Shuffle the skill feed" title="Shuffle the skill feed"')}${link('#skills', 'Open the feed')}</div>`)} `;
 }
 
 const filterDefinitions = [
@@ -307,6 +331,60 @@ function careerView(career) {
     </aside></div>`;
 }
 
+function skillCard(video) {
+  const watched = isWatched(video.id);
+  return `<article class="skill-card">
+    <a class="skill-thumb" href="#skill/${video.id}" tabindex="-1" aria-hidden="true"><img src="${skillThumb(video.id)}" alt="" loading="lazy" decoding="async"><span class="skill-play">${icon('play')}</span><span class="skill-topic">${safe(video.topic)}</span>${watched ? '<span class="skill-watched" title="Watched">' + icon('check') + '</span>' : ''}</a>
+    <div class="skill-body"><h3><a href="#skill/${video.id}">${safe(video.title)}</a></h3>
+    <div class="skill-channel"><span class="skill-avatar" aria-hidden="true">${safe(video.channel.charAt(0).toUpperCase())}</span><span>${safe(video.channel)}</span></div></div>
+  </article>`;
+}
+const skillGrid = videos => `<div class="skill-grid">${videos.map(skillCard).join('')}</div>`;
+
+function skillsView(params) {
+  const topic = skillTopics.includes(params.get('topic')) ? params.get('topic') : '';
+  const query = (params.get('q') || '').trim();
+  const needle = query.toLowerCase();
+  const pool = feedOrder.map(id => skillMap.get(id)).filter(video =>
+    (!topic || video.topic === topic) && (!needle || (video.title + ' ' + video.channel + ' ' + video.topic).toLowerCase().includes(needle)));
+  const shown = pool.slice(0, feedLimit);
+  const chips = ['', ...skillTopics].map(value => {
+    const href = routeLink('skills', { topic:value, q:query });
+    const label = value || 'All skills';
+    return `<a href="${href}" class="chip ${topic === value ? 'selected' : ''}" ${topic === value ? 'aria-current="page"' : ''}>${safe(label)}</a>`;
+  }).join('');
+  return `${heading('Skill feed', 'Watch something that teaches you', 'A shuffled shelf of hand-picked videos that each teach one real, usable skill. No music, no noise — press play and leave with something you can do.')}
+    <form class="filters" data-form="skill-search"><input type="hidden" name="topic" value="${safe(topic)}">
+      <label class="filter-query">Search the feed<input name="q" value="${safe(query)}" type="search" placeholder="Try prompt engineering, Excel, or Figma"></label>
+      <button class="button">Search</button>
+      ${action('shuffle', 'Shuffle', 'spark', '', 'button outline')}
+    </form>
+    <nav class="chips" aria-label="Skill topics">${chips}</nav>
+    <p class="catalog-note" role="status">${count.format(pool.length)} skill video${pool.length === 1 ? '' : 's'}${topic ? ' in ' + safe(topic) : ''}${query ? ' matching “' + safe(query) + '”' : ''}</p>
+    <div class="shelf">${pool.length ? skillGrid(shown) : empty('Nothing here yet', 'Try another topic or clear the search.', link(routeLink('skills'), 'Reset the feed'))}</div>
+    ${pool.length > shown.length ? `<div class="feed-more-row">${action('feed-more', 'Show more videos', 'arrow', '', 'button outline')}</div>` : ''}`;
+}
+
+function renderSkill(video) {
+  const watched = isWatched(video.id);
+  const related = feedOrder.map(id => skillMap.get(id)).filter(item => item.topic === video.topic && item.id !== video.id).slice(0, 6);
+  return `<nav class="breadcrumb"><a href="#skills">Skill feed</a> / ${safe(video.topic)}</nav>
+    ${heading('Skill video', video.title, video.channel)}
+    <div class="detail"><div>
+      <div class="player" id="player"><img class="skill-poster" src="${skillThumb(video.id)}" alt=""><div class="play-prompt">
+        ${action('play-skill', 'Play video', 'play', video.id, 'button light')}<p>Playback uses the official YouTube player.</p></div></div>
+      <div class="study-actions"><div class="button-row">
+        ${action('skill-watched', watched ? 'Watched' : 'Mark watched', 'check', video.id, 'button outline', 'aria-pressed="' + watched + '"')}
+        ${external('https://www.youtube.com/watch?v=' + video.id, 'Watch on YouTube', 'text-link')}</div>
+        ${link(routeLink('skills', { topic:video.topic }), 'More ' + video.topic, 'arrow')}</div>
+      <section class="panel"><h2>Make it stick</h2><p class="lead">Watch once for the shape of the skill, then rebuild the example yourself without following along click-for-click. Write down the three moves you would reuse in real work, and try them on a small project of your own today.</p>
+      <div class="tags"><span class="tag">${safe(video.topic)}</span><span class="tag">${safe(video.channel)}</span><span class="tag">Self-paced</span></div></section>
+    </div><aside class="panel"><h2>Up next in ${safe(video.topic)}</h2>
+      ${related.length ? '<ol class="skill-upnext">' + related.map(item => `<li><a href="#skill/${item.id}"><img src="${skillThumb(item.id)}" alt="" loading="lazy"><span>${safe(item.title)}</span></a></li>`).join('') + '</ol>' : '<p class="muted small">More videos in this topic are on the way.</p>'}
+      <p class="small muted" style="margin-top:14px">Every video in the feed is checked against YouTube before publishing and chosen because it teaches a concrete skill.</p>
+    </aside></div>`;
+}
+
 function studySpace() {
   const entries = Object.keys(study.items).map(key => {
     const [id, mode] = key.split(':');
@@ -367,6 +445,8 @@ function render({ focus = false } = {}) {
     case 'path': { const path = paths.find(path => path.id === id); body = path ? renderPath(path) : unknown(); break; }
     case 'careers': body = careersView(); break;
     case 'career': { const career = careerById(id); body = career ? careerView(career) : unknown(); break; }
+    case 'skills': body = skillsView(params); break;
+    case 'skill': { const video = skillMap.get(id); body = video ? renderSkill(video) : unknown(); break; }
     case 'course': body = item ? renderCourse(item) : catalogState === 'loading' ? empty('Loading course', 'Getting the course from the library.') : unknown(); break;
     case 'study':
     case 'watch': {
@@ -380,7 +460,7 @@ function render({ focus = false } = {}) {
     case 'about': body = about(); break;
     default: body = unknown();
   }
-  document.title = (item?.title || careerById(id)?.title || ({ catalog:'Course catalog', paths:'Learning paths', careers:'Career paths', 'study-space':'My study' })[view] || 'The self-taught library') + ' · Open Syllabus';
+  document.title = (item?.title || careerById(id)?.title || ({ catalog:'Course catalog', paths:'Learning paths', careers:'Career paths', skills:'Skill feed', 'study-space':'My study' })[view] || 'The self-taught library') + ' · Open Syllabus';
   shell.innerHTML = `<div class="layout">
     <button type="button" class="mobile-overlay ${mobileMenu ? 'open' : ''}" aria-label="Close navigation" data-action="menu"></button>
     <aside class="sidebar ${mobileMenu ? 'open' : ''}" id="navigation"><a class="brand" href="#discover"><img src="./mark.svg" alt="">Open Syllabus</a>
@@ -389,6 +469,7 @@ function render({ focus = false } = {}) {
         ${navItem('#catalog','grid','Course catalog',view === 'catalog' && !params.get('subject'))}
         ${navItem('#paths','route','Learning paths',view === 'paths' || view === 'path')}
         ${navItem('#careers','briefcase','Careers',view === 'careers' || view === 'career')}
+        ${navItem('#skills','spark','Skill feed',view === 'skills' || view === 'skill')}
         ${navItem('#study-space','book','My study',view === 'study-space')}
       </nav><div class="section-label">Subjects</div>
       <nav class="nav" aria-label="Subjects">${favorites.map(subject => navItem(browseLink({subject}), subjectIcon[subject], subject, view === 'catalog' && params.get('subject') === subject)).join('')}</nav>
@@ -479,6 +560,32 @@ shell.addEventListener('click', event => {
     $(selector)?.focus({ preventScroll:true });
     return;
   }
+  if (kind === 'shuffle') {
+    feedOrder = shuffled(skillVideos.map(video => video.id));
+    render();
+    $('[data-action="shuffle"]')?.focus({ preventScroll:true });
+    return;
+  }
+  if (kind === 'feed-more') {
+    feedLimit += 24;
+    render();
+    ($('[data-action="feed-more"]') || $('#main')).focus({ preventScroll:true });
+    return;
+  }
+  if (kind === 'play-skill') {
+    const video = skillMap.get(id);
+    if (video) attachVideo('https://www.youtube-nocookie.com/embed/' + video.id + '?rel=0', 'YouTube · ' + video.title);
+    $('#player iframe')?.focus();
+    return;
+  }
+  if (kind === 'skill-watched') {
+    const selector = '[data-action="skill-watched"][data-id="' + id + '"]';
+    const stored = recordSkill(id, entry => { entry.watched = !entry.watched; });
+    notice = stored ? '' : 'Browser storage is unavailable. Changes last until you close this page.';
+    render();
+    $(selector)?.focus({ preventScroll:true });
+    return;
+  }
   if (!item) return;
   if (kind === 'retry-outline') {
     videoErrors.delete(id);
@@ -510,6 +617,12 @@ shell.addEventListener('submit', event => {
   if (!form.dataset.form) return;
   event.preventDefault();
   const values = Object.fromEntries(new FormData(form));
+  if (form.dataset.form === 'skill-search') {
+    const hash = routeLink('skills', { q:values.q.trim(), topic:values.topic || '' });
+    if (location.hash !== hash) location.hash = hash;
+    else render({ focus:true });
+    return;
+  }
   if (form.dataset.form === 'search' || form.dataset.form === 'filter') {
     values.q = values.q.trim();
     const hash = browseLink(values);

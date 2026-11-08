@@ -30,6 +30,9 @@ your browser.
 - **Official video sequences.** Matched courses play their full provider-published lesson
   outline, grouped into the provider's own units/chapters.
 - **Guided starters & learning paths** that sequence selected lessons across providers.
+- **Skill feed** — a shuffled shelf of hand-picked YouTube videos that each teach one
+  concrete skill, from prompt engineering to Photoshop to public speaking. Filter by
+  topic, search, shuffle, and mark videos as watched.
 - **A focused player** using the official, privacy-respecting YouTube embed, loaded only
   when you ask for it.
 - **Personal study space** — save courses, keep a notebook, answer practice prompts, and
