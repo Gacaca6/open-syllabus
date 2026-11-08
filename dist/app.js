@@ -386,6 +386,10 @@ function renderSkill(video) {
 }
 
 function studySpace() {
+  const skillEntries = Object.keys(study.items).filter(key => key.startsWith('skill:')).map(key => {
+    const id = key.slice(6);
+    return skillMap.get(id);
+  }).filter(Boolean);
   const entries = Object.keys(study.items).map(key => {
     const [id, mode] = key.split(':');
     return mode === 'youtube' ? videoView(byId.get(id)) : byId.get(id);
@@ -401,9 +405,10 @@ function studySpace() {
     return `<article class="panel"><h3><a href="${href}">${safe(item.title)}${title ? ' · ' + safe(title) : ''}</a></h3><p class="note-preview muted">${safe(value)}</p></article>`;
   }));
   return `${heading('Personal library', 'My study', 'Pick up a lesson, find a saved course, or revisit your notebook. Activity is stored in this browser.')}
-    ${recent.length || saved.length || notes.length || careerTracks.length ? '' : empty('Your study space is ready', 'Save a course, start a career track, or begin a guided lesson to make this space your own.', link('#catalog','Explore courses','arrow','button'))}
+    ${recent.length || saved.length || notes.length || careerTracks.length || skillEntries.length ? '' : empty('Your study space is ready', 'Save a course, start a career track, or begin a guided lesson to make this space your own.', link('#catalog','Explore courses','arrow','button'))}
     ${careerTracks.length ? section('Career tracks', 'Your progress toward a job-ready track.', '<div class="paths">' + careerTracks.map(career => `<a class="path-tile" href="#career/${career.id}"><span class="box-icon" style="color:${career.accent}">${icon(career.icon)}</span><div><h3>${safe(career.title)}</h3><p>${careerProgress(career)}% job-ready · ${careerStepCount(career)} steps</p></div></a>`).join('') + '</div>', link('#careers', 'All careers')) : ''}
     ${recent.length ? section('Recent activity', '', cards(recent)) : ''}
+    ${skillEntries.length ? section('Skill videos', 'Videos you have started or marked watched.', '<div class="skill-grid">' + skillEntries.map(skillCard).join('') + '</div>', link('#skills', 'Browse the feed')) : ''}
     ${saved.length ? section('Saved courses', '', cards(saved)) : ''}
     ${notes.length ? section('Notebook', '', '<div class="paths">' + notes.join('') + '</div>') : ''}`;
 }
@@ -574,7 +579,10 @@ shell.addEventListener('click', event => {
   }
   if (kind === 'play-skill') {
     const video = skillMap.get(id);
-    if (video) attachVideo('https://www.youtube-nocookie.com/embed/' + video.id + '?rel=0', 'YouTube · ' + video.title);
+    if (video) {
+      recordSkill(id, entry => { entry.updated = Date.now(); });
+      attachVideo('https://www.youtube-nocookie.com/embed/' + video.id + '?rel=0', 'YouTube · ' + video.title);
+    }
     $('#player iframe')?.focus();
     return;
   }
@@ -582,8 +590,17 @@ shell.addEventListener('click', event => {
     const selector = '[data-action="skill-watched"][data-id="' + id + '"]';
     const stored = recordSkill(id, entry => { entry.watched = !entry.watched; });
     notice = stored ? '' : 'Browser storage is unavailable. Changes last until you close this page.';
-    render();
-    $(selector)?.focus({ preventScroll:true });
+    const player = $('#player');
+    if (player?.querySelector('iframe')) {
+      const next = document.createElement('template');
+      next.innerHTML = renderSkill(skillMap.get(id));
+      const newButton = next.content.querySelector(selector);
+      $(selector)?.replaceWith(newButton);
+      newButton?.focus({ preventScroll:true });
+    } else {
+      render();
+      $(selector)?.focus({ preventScroll:true });
+    }
     return;
   }
   if (!item) return;

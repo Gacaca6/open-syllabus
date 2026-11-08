@@ -15,9 +15,10 @@
 .subject-tile{overflow:hidden;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .subject-tile:hover{border-color:#777}
 .subject-name{display:block;padding:7px 9px;font-size:12px;font-weight:700;overflow-wrap:anywhere}
-.player{position:relative;isolation:isolate}
+.player{position:relative;isolation:isolate;aspect-ratio:16/9;background:#171717;overflow:hidden;border-radius:8px}
 .player .subject-cover{position:absolute;inset:0;z-index:-2;aspect-ratio:auto}
 .player:has(.subject-cover)::after{content:"";position:absolute;inset:0;z-index:-1;background:#0009}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 @media(max-width:1050px){.subject-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:430px){.subject-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.subject-name{padding:6px 7px}}
 .chapter-list details{border-top:1px solid var(--line)}
@@ -97,7 +98,8 @@
 .skill-body h3 a:hover{color:var(--muted)}
 .skill-channel{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
 .skill-avatar{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:50%;background:var(--soft);border:1px solid var(--line);font-size:10px;font-weight:800;color:var(--ink)}
-.skill-poster{width:100%;height:auto;object-fit:cover}
+.skill-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.player:has(.skill-poster)::after{content:"";position:absolute;inset:0;z-index:-1;background:#0009}
 .skill-upnext{list-style:none;margin:0;padding:0;display:grid;gap:0}
 .skill-upnext li{border-top:1px solid var(--line)}
 .skill-upnext li a{display:flex;gap:10px;align-items:center;padding:9px 0;transition:background .12s ease}
