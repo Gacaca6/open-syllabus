@@ -3,6 +3,7 @@ import { curated, paths, lectures } from './curated.js';
 import { heroArt, icon, subjectCover, subjectIcon } from './art.js';
 import { mergeCatalog, nextLesson, pageSize, readStudy, searchCatalog, writeStudy } from './model.js';
 import { chapterRuns, createVideoLibrary, lessonKey, linkVideoCatalog, studyKey, videoLesson } from './video-library.js';
+import { careers, careerById, careerCourseCount, careerStepCount, stepKey } from './careers.js';
 
 const $ = (selector) => document.querySelector(selector);
 const shell = $('#shell');
@@ -62,6 +63,25 @@ const section = (title, description, content, extra = '') => `<section class="sh
 const empty = (title, description, extra = '') => `<section class="empty"><h2>${safe(title)}</h2><p>${safe(description)}</p>${extra}</section>`;
 const heading = (kicker, title, description = '') => `<header class="page-head"><div class="eyebrow">${safe(kicker)}</div><h1>${safe(title)}</h1><p>${safe(description)}</p></header>`;
 
+const careerEntry = id => study.items['career:' + id] || {};
+function recordCareer(id, modify) {
+  const entry = { ...careerEntry(id) };
+  modify(entry);
+  entry.updated = Date.now();
+  study = { items:{ ...study.items, ['career:' + id]:entry } };
+  return writeStudy(browserStorage, study);
+}
+const stepDone = (career, stage, index, step) => Boolean(careerEntry(career.id).steps?.[stepKey(stage, index)])
+  || (step.course && byId.has(step.course) ? progress(byId.get(step.course)) === 100 : false);
+function careerProgress(career) {
+  const entry = careerEntry(career.id);
+  const steps = career.stages.flatMap((stage, s) => stage.steps.map((step, i) => stepDone(career, s, i, step)));
+  const checks = career.checklist.map((_, i) => Boolean(entry.checklist?.[i]));
+  const done = steps.filter(Boolean).length + checks.filter(Boolean).length;
+  const total = steps.length + checks.length;
+  return total ? Math.round(done / total * 100) : 0;
+}
+
 function renderCard(item) {
   const href = courseLink(item);
   const saveLabel = isSaved(item) ? 'Remove saved course' : 'Save course';
@@ -84,6 +104,7 @@ function discover() {
     <p>University courses, practical skills, and ideas worth sitting with. Find your starting point and study at your own pace.</p>
     ${link('#catalog', 'Explore the library', 'arrow', 'button light')}</div><div class="folio">OPEN SYLLABUS / VOL. 01</div></section>
     ${recent.length ? section('Continue studying', 'Pick up where you left off.', cards(recent), link('#study-space', 'My study')) : ''}
+    ${section('Build a career', 'Job-ready tracks: curated courses, hands-on projects, one clear sequence.', '<div class="career-grid">' + careers.slice(0, 4).map(careerCard).join('') + '</div>', link('#careers', 'All careers'))}
     ${section('Browse by subject', '', '<div class="subject-grid">' + favorites.map(subject => `<a class="subject-tile" href="${browseLink({subject})}">${subjectCover(subject)}<span class="subject-name">${safe(subject)}</span></a>`).join('') + '</div><div class="chips topic-shortcuts"><a class="chip" href="' + browseLink({discipline:'Textile Engineering'}) + '">Textiles &amp; apparel</a><a class="chip" href="' + browseLink({discipline:'Engineering Design'}) + '">Engineering design</a></div>', link('#catalog', 'All subjects'))}
     ${featured.length ? section('Start a full course', 'Official YouTube lessons in the order their educators list them.', cards(featured, 'featured'), link('#catalog', 'View catalog')) : ''}
     ${section('Learning paths', 'Build toward a goal with a sequence you can follow.', '<div class="paths">' + paths.slice(0, 3).map(pathTile).join('') + '</div>', link('#paths', 'All paths'))}
@@ -233,11 +254,65 @@ function renderPath(path) {
     }).join('')}</ol></section><aside class="panel"><h2>Try a project</h2><p class="lead">${safe(path.project)}</p></aside></div>`;
 }
 
+function careerCard(career) {
+  const pct = careerProgress(career);
+  return `<a class="career-card" href="#career/${career.id}" style="--accent:${career.accent}">
+    <span class="career-icon">${icon(career.icon)}</span>
+    <div class="career-card-body"><h3>${safe(career.title)}</h3><p>${safe(career.role)}</p>
+    <div class="career-meta"><span>${career.stages.length} stages</span><span>${careerCourseCount(career)} courses</span><span>${safe(career.months)} mo</span></div>
+    ${pct ? progressBar(pct) : ''}</div>
+    <span class="career-go">${icon('arrow')}</span></a>`;
+}
+
+function careersView() {
+  return `${heading('Career paths', 'Learn a career, not just a lesson', 'Focused, job-ready tracks. We pick the right courses from the open catalog and sequence them into the skills employers hire for — no noise, no guesswork.')}
+    <div class="career-grid">${careers.map(careerCard).join('')}</div>
+    <section class="panel career-note"><h2>How these tracks work</h2><p class="lead">Each track is a curated sequence of verified course outlines plus hands-on portfolio projects. Course steps play right here in the library; project steps are work you build and mark done yourself. Progress and your job-ready checklist stay in this browser.</p></section>`;
+}
+
+function careerView(career) {
+  const entry = careerEntry(career.id);
+  const pct = careerProgress(career);
+  const stages = career.stages.map((stage, s) => {
+    const doneCount = stage.steps.filter((step, i) => stepDone(career, s, i, step)).length;
+    return `<section class="career-stage ${doneCount === stage.steps.length ? 'done' : ''}" style="--accent:${career.accent}">
+      <header class="career-stage-head"><span class="stage-number">${String(s + 1).padStart(2, '0')}</span><div><h2>${safe(stage.title)}</h2><p>${safe(stage.goal)}</p></div><span class="stage-count">${doneCount}/${stage.steps.length}</span></header>
+      <ol class="career-steps">${stage.steps.map((step, i) => {
+        const key = stepKey(s, i);
+        const done = stepDone(career, s, i, step);
+        const course = step.course ? byId.get(step.course) : null;
+        const label = course ? course.title : step.youtube ? step.youtube.title : step.project;
+        const sub = course ? course.provider + ' · ' + count.format(course.videoCourse?.count || course.lessons?.length || 0) + ' lessons' : step.youtube ? 'On YouTube · ' + step.youtube.channel : 'Hands-on project';
+        const open = course ? link(courseLink(course), progress(course) ? 'Continue' : 'Study', 'arrow', 'text-link') : step.youtube ? external(step.youtube.url, 'Open', 'text-link') : '';
+        return `<li class="${done ? 'done' : ''}">
+          <button type="button" class="step-check" data-action="career-step" data-id="${career.id}" data-step="${key}" aria-pressed="${done}" aria-label="${done ? 'Mark step not done' : 'Mark step done'}">${icon('check')}</button>
+          <div class="step-body"><strong>${safe(label)}</strong><span class="provider">${safe(sub)}</span>${course && progress(course) ? progressBar(progress(course)) : ''}</div>
+          <span class="step-open">${open}</span></li>`;
+      }).join('')}</ol></section>`;
+  }).join('');
+  const checklist = career.checklist.map((label, i) => {
+    const on = Boolean(entry.checklist?.[i]);
+    return `<li class="${on ? 'done' : ''}"><button type="button" class="step-check" data-action="career-check" data-id="${career.id}" data-check="${i}" aria-pressed="${on}" aria-label="${on ? 'Uncheck' : 'Check'}: ${safe(label)}">${icon('check')}</button><span>${safe(label)}</span></li>`;
+  }).join('');
+  return `<nav class="breadcrumb"><a href="#careers">Career paths</a> / ${safe(career.title)}</nav>
+    ${heading('Career path', career.title, career.summary)}
+    <div class="career-head" style="--accent:${career.accent}"><span class="career-icon large">${icon(career.icon)}</span>
+      <div class="tags">${career.skills.map(skill => `<span class="tag">${safe(skill)}</span>`).join('')}</div></div>
+    <div class="detail"><div>${stages}</div>
+    <aside class="panel career-aside" style="--accent:${career.accent}">
+      <h2>Job readiness</h2><p class="small muted">${pct}% of this track complete</p>${progressBar(pct)}
+      <h3>What you’ll be able to do</h3><ul class="career-outcomes">${career.outcomes.map(outcome => `<li>${icon('check')}<span>${safe(outcome)}</span></li>`).join('')}</ul>
+      <h3>Job-ready checklist</h3><ul class="career-checklist">${checklist}</ul>
+      <p class="small muted">Estimated ${safe(career.months)} months at a steady pace. Courses play here; projects are yours to build and mark done.</p>
+    </aside></div>`;
+}
+
 function studySpace() {
   const entries = Object.keys(study.items).map(key => {
     const [id, mode] = key.split(':');
     return mode === 'youtube' ? videoView(byId.get(id)) : byId.get(id);
   }).filter(Boolean);
+  const careerTracks = careers.filter(career => careerEntry(career.id).updated || careerProgress(career) > 0);
   const recent = entries.filter(isActive).sort((a, b) => activity(b).updated - activity(a).updated);
   const saved = entries.filter(item => !item.watch && isSaved(item));
   const notes = entries.flatMap(item => Object.entries(activity(item).notes || {}).filter(([, value]) => value.trim()).map(([key, value]) => {
@@ -248,7 +323,8 @@ function studySpace() {
     return `<article class="panel"><h3><a href="${href}">${safe(item.title)}${title ? ' · ' + safe(title) : ''}</a></h3><p class="note-preview muted">${safe(value)}</p></article>`;
   }));
   return `${heading('Personal library', 'My study', 'Pick up a lesson, find a saved course, or revisit your notebook. Activity is stored in this browser.')}
-    ${recent.length || saved.length || notes.length ? '' : empty('Your study space is ready', 'Save a course or start a guided lesson to make this space your own.', link('#catalog','Explore courses','arrow','button'))}
+    ${recent.length || saved.length || notes.length || careerTracks.length ? '' : empty('Your study space is ready', 'Save a course, start a career track, or begin a guided lesson to make this space your own.', link('#catalog','Explore courses','arrow','button'))}
+    ${careerTracks.length ? section('Career tracks', 'Your progress toward a job-ready track.', '<div class="paths">' + careerTracks.map(career => `<a class="path-tile" href="#career/${career.id}"><span class="box-icon" style="color:${career.accent}">${icon(career.icon)}</span><div><h3>${safe(career.title)}</h3><p>${careerProgress(career)}% job-ready · ${careerStepCount(career)} steps</p></div></a>`).join('') + '</div>', link('#careers', 'All careers')) : ''}
     ${recent.length ? section('Recent activity', '', cards(recent)) : ''}
     ${saved.length ? section('Saved courses', '', cards(saved)) : ''}
     ${notes.length ? section('Notebook', '', '<div class="paths">' + notes.join('') + '</div>') : ''}`;
@@ -289,6 +365,8 @@ function render({ focus = false } = {}) {
     case 'catalog': body = catalogView(params); break;
     case 'paths': body = heading('Guided learning', 'Learning paths', 'Start with a goal and follow a sequence of courses, practice, and projects.') + '<div class="paths">' + paths.map(pathTile).join('') + '</div>'; break;
     case 'path': { const path = paths.find(path => path.id === id); body = path ? renderPath(path) : unknown(); break; }
+    case 'careers': body = careersView(); break;
+    case 'career': { const career = careerById(id); body = career ? careerView(career) : unknown(); break; }
     case 'course': body = item ? renderCourse(item) : catalogState === 'loading' ? empty('Loading course', 'Getting the course from the library.') : unknown(); break;
     case 'study':
     case 'watch': {
@@ -302,7 +380,7 @@ function render({ focus = false } = {}) {
     case 'about': body = about(); break;
     default: body = unknown();
   }
-  document.title = (item?.title || ({ catalog:'Course catalog', paths:'Learning paths', 'study-space':'My study' })[view] || 'The self-taught library') + ' · Open Syllabus';
+  document.title = (item?.title || careerById(id)?.title || ({ catalog:'Course catalog', paths:'Learning paths', careers:'Career paths', 'study-space':'My study' })[view] || 'The self-taught library') + ' · Open Syllabus';
   shell.innerHTML = `<div class="layout">
     <button type="button" class="mobile-overlay ${mobileMenu ? 'open' : ''}" aria-label="Close navigation" data-action="menu"></button>
     <aside class="sidebar ${mobileMenu ? 'open' : ''}" id="navigation"><a class="brand" href="#discover"><img src="./mark.svg" alt="">Open Syllabus</a>
@@ -310,6 +388,7 @@ function render({ focus = false } = {}) {
         ${navItem('#discover','home','Discover',!view || view === 'discover')}
         ${navItem('#catalog','grid','Course catalog',view === 'catalog' && !params.get('subject'))}
         ${navItem('#paths','route','Learning paths',view === 'paths' || view === 'path')}
+        ${navItem('#careers','briefcase','Careers',view === 'careers' || view === 'career')}
         ${navItem('#study-space','book','My study',view === 'study-space')}
       </nav><div class="section-label">Subjects</div>
       <nav class="nav" aria-label="Subjects">${favorites.map(subject => navItem(browseLink({subject}), subjectIcon[subject], subject, view === 'catalog' && params.get('subject') === subject)).join('')}</nav>
@@ -354,7 +433,7 @@ function refreshLocal(button, item) {
       const next = document.createElement('template');
       next.innerHTML = renderLesson(item, Number(button.dataset.index), locationParts().params);
       button.replaceWith(next.content.querySelector(selector));
-      $(selector)?.focus();
+      $(selector)?.focus({ preventScroll:true });
       $('.detail aside').replaceWith(next.content.querySelector('.detail aside'));
       if (locationParts().params.get('tab') === 'outline') {
         $('.study-tool-panel').replaceWith(next.content.querySelector('.study-tool-panel'));
@@ -387,6 +466,17 @@ shell.addEventListener('click', event => {
     $('.sidebar').classList.toggle('open', mobileMenu);
     $('.mobile-overlay').classList.toggle('open', mobileMenu);
     (mobileMenu ? $('.sidebar .brand') : menu).focus();
+    return;
+  }
+  if (kind === 'career-step' || kind === 'career-check') {
+    const selector = '[data-action="' + kind + '"][data-id="' + id + '"]' + (kind === 'career-step' ? '[data-step="' + button.dataset.step + '"]' : '[data-check="' + button.dataset.check + '"]');
+    const stored = recordCareer(id, entry => {
+      if (kind === 'career-step') { entry.steps = { ...entry.steps }; entry.steps[button.dataset.step] = !entry.steps[button.dataset.step]; }
+      else { entry.checklist = { ...entry.checklist }; entry.checklist[button.dataset.check] = !entry.checklist[button.dataset.check]; }
+    });
+    notice = stored ? '' : 'Browser storage is unavailable. Changes last until you close this page.';
+    render();
+    $(selector)?.focus({ preventScroll:true });
     return;
   }
   if (!item) return;

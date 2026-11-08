@@ -20,6 +20,14 @@ const paths = {
  clock:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 7v5l3 2',
  headphones:'M4 14v-2a8 8 0 0 1 16 0v2M4 12h4v7H4zm12 0h4v7h-4z',
  info:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 11v6m0-10v.1',
+ briefcase:'M4 8h16v12H4z M9 8V5h6v3 M4 13h16',
+ palette:'M12 3a9 9 0 1 0 0 18c2 0 3-1 3-2.5S14 16 14 15s1-2 2.5-2H19a2 2 0 0 0 2-2c0-4.5-4-8-9-8z M8 10v.1M12 7v.1M16 10v.1',
+ draft:'M12 3v4 M12 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z M10.5 10.5 5 21 M13.5 10.5 19 21 M7 17h10',
+ robot:'M7 9h10v9H7z M12 9V5 M12 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M4 12v3 M20 12v3 M10 13v.1M14 13v.1 M10 16h4',
+ megaphone:'M3 10v4l4 1 3 5h2l-1-5 9 4V5L10 9H3z M20 9v6',
+ chart:'M4 20h16 M7 20v-7 M12 20V6 M17 20v-10',
+ globe:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M3 12h18 M12 3c3 3 3 15 0 18-3-3-3-15 0-18z',
+ pen:'M4 20l1-4L16 5l3 3L8 19l-4 1z M14 7l3 3',
 };
 
 export const icon = (name) => '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + (paths[name] || paths.book) + '"/></svg>';
